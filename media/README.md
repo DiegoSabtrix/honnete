@@ -1,16 +1,22 @@
 # media/
 
-El `index.html` del sitio de Honnête referencia los siguientes archivos en esta
-carpeta. Falta subirlos (son binarios y no se incluyeron en la carga inicial):
+Archivos que referencia el `index.html` del sitio de Honnête.
 
-## Póster del hero
+## ✅ Ya subidos
+- `hero-program.mp4`
+- `hero-biomedical.mp4`
+- `hero-healthcare.mp4`
+- `hero-it.mp4`
+
+## ⏳ Pendientes
+Póster del hero:
 - `hero-poster.jpg`
 
-## Videos del hero (cada uno en MP4 + WebM)
-- `hero-program.mp4` / `hero-program.webm`
-- `hero-biomedical.mp4` / `hero-biomedical.webm`
-- `hero-healthcare.mp4` / `hero-healthcare.webm`
-- `hero-it.mp4` / `hero-it.webm`
+Versiones WebM de los videos (fallback/optimización; el `<video>` intenta WebM
+antes que MP4):
+- `hero-program.webm`
+- `hero-biomedical.webm`
+- `hero-healthcare.webm`
+- `hero-it.webm`
 
-Coloca estos 9 archivos aquí (4 videos × 2 formatos + 1 póster) y elimina este
-README cuando ya estén todos.
+Coloca estos 5 archivos aquí y elimina este README cuando estén todos.
