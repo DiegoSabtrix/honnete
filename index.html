@@ -100,73 +100,114 @@
     /* ════════════════════════════════════════════════════════════
        PRELOADER — the bird wing opens, then flies out
     ════════════════════════════════════════════════════════════ */
-    .loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--navy-deep);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 30px;
-      transition: transform 1s var(--ease-out), border-radius 1s var(--ease-out);
+    .loader, .hl-overlay { /* Honnête loading sequence */ }
+    .hl-overlay{position:fixed;inset:0;z-index:9999;background:rgba(7,16,33,.66);-webkit-backdrop-filter:blur(6px) saturate(1.05);backdrop-filter:blur(6px) saturate(1.05);animation:hlIn .5s ease both}
+    @keyframes hlIn{from{opacity:0}to{opacity:1}}
+    .hl-stage{position:absolute;inset:0;width:100%;height:100%}
+
+    /* dust */
+    .dustp{fill:#D6B266;opacity:0;animation:hlDust var(--d) ease-in-out var(--dl) 2 both}
+    @keyframes hlDust{0%{opacity:0;transform:translateY(5px)}35%{opacity:.85}100%{opacity:0;transform:translateY(-18px)}}
+
+    /* ===== bird wrappers: explicit pivot sandwiches, no transform-origin ===== */
+    .birdSettle{animation:hlSettle 1.4s ease-out 4.2s both}
+    @keyframes hlSettle{
+     from{transform:translate(627px,366px) scale(1.024) translate(-627px,-366px)}
+     to{transform:translate(627px,366px) scale(1) translate(-627px,-366px)}}
+    .birdShrink{animation:hlShrink .7s cubic-bezier(.5,.05,.3,1) 7.25s both,hlBreathe 3s ease-in-out 8s infinite}
+    @keyframes hlShrink{
+     from{transform:translate(568px,346px) scale(1) translate(-568px,-346px)}
+     to{transform:translate(568px,346px) scale(.705) translate(-568px,-346px)}}
+    @keyframes hlBreathe{
+     0%,100%{transform:translate(568px,346px) scale(.705) translate(-568px,-346px)}
+     50%{transform:translate(568px,343px) scale(.712) translate(-568px,-346px)}}
+
+    /* glow copy */
+    .L-glow{filter:blur(10px);opacity:0;animation:hlGlow 2.4s ease 6s both}
+    .L-glow path{fill:#FDFDFD;opacity:0;animation:hlFillIn .18s ease 2.8s both}
+    @keyframes hlGlow{0%{opacity:0}45%{opacity:.45}100%{opacity:.2}}
+
+    /* white fill */
+    .L-white path{fill:#FDFDFD;opacity:0;animation:hlFillIn .18s ease calc(2.8s + var(--i)*.015s) both}
+    @keyframes hlFillIn{from{opacity:0}to{opacity:1}}
+    .L-white{animation:hlBloom 1.3s ease-in-out 6.2s 1 both}
+    @keyframes hlBloom{0%{filter:drop-shadow(0 0 10px rgba(238,217,160,0))}
+     50%{filter:drop-shadow(0 0 14px rgba(238,217,160,.5)) brightness(1.08)}
+     100%{filter:drop-shadow(0 0 12px rgba(238,217,160,.15))}}
+
+    /* gold tint pulse */
+    .L-tint path{fill:#D5AE5D}
+    .L-tint{opacity:0;animation:hlTint .8s ease-in-out 3.35s 1 both}
+    @keyframes hlTint{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
+
+    /* flowing trails */
+    .L-runner path{fill:none;stroke:#D6B266;stroke-width:1.05;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:.16 .175;stroke-dashoffset:var(--ph);
+     filter:drop-shadow(0 0 2.5px rgba(230,200,125,.9)) drop-shadow(0 0 7px rgba(214,178,102,.5));
+     opacity:0;
+     animation:hlTrailIn .4s ease calc(var(--i)*.07s) both,
+      hlTravel var(--dur) linear calc(var(--i)*.07s) infinite,
+      hlTrailOut .45s ease 2.85s forwards}
+    @keyframes hlTrailIn{from{opacity:0}to{opacity:.95}}
+    @keyframes hlTrailInB{from{opacity:0}to{opacity:.8}}
+    @keyframes hlTravel{to{stroke-dashoffset:calc(var(--ph) + var(--dir) * -1.005)}}
+    @keyframes hlTrailOut{to{opacity:0}}
+    .L-runner .hl-swirl{stroke:#D6B266;stroke-width:.95;fill:none;stroke-linecap:round;
+     stroke-dasharray:.3 .7;stroke-dashoffset:0;
+     filter:drop-shadow(0 0 4px rgba(222,190,115,.8));opacity:0;
+     animation:hlSwirlIn .35s ease .05s both,hlSwirlSpin 1.15s linear .05s 2,hlSwirlOut .5s ease 1.75s forwards}
+    @keyframes hlSwirlIn{from{opacity:0}to{opacity:.8}}
+    @keyframes hlSwirlSpin{to{stroke-dashoffset:-1}}
+    @keyframes hlSwirlOut{to{opacity:0}}
+    .L-runner2 path{fill:none;stroke:#DCC178;stroke-width:.78;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:.17 .18;stroke-dashoffset:calc(var(--ph) + .09);
+     filter:drop-shadow(0 0 2.5px rgba(230,200,125,.9)) drop-shadow(0 0 7px rgba(214,178,102,.5));
+     opacity:0;
+     animation:hlTrailInB .5s ease .75s both,
+      hlTravel calc(var(--dur)*1.25) linear reverse .2s infinite,
+      hlTrailOut .45s ease 2.85s forwards}
+    .L-runner2 .hl-swirl{display:none}
+
+    /* completer */
+    .L-completer path{fill:none;stroke:#E3C57F;stroke-width:.55;stroke-linecap:round;stroke-linejoin:round;
+     stroke-dasharray:1;stroke-dashoffset:1;
+     filter:drop-shadow(0 0 3px rgba(222,190,115,.75));
+     animation:hlDraw .55s cubic-bezier(.4,.1,.4,.95) calc(2.3s + var(--i)*.06s) both,
+      hlTrailOut .5s ease 3.15s forwards}
+    @keyframes hlDraw{to{stroke-dashoffset:0}}
+
+    /* gold sweep band (clipped by the bird) */
+    .sweepG{opacity:0;animation:hlSweepO 1s ease 6.35s 1 both}
+    .sweepBand{animation:hlSweepT 1s cubic-bezier(.4,.1,.4,.9) 6.35s 1 both}
+    @keyframes hlSweepO{0%{opacity:0}15%{opacity:.95}85%{opacity:.95}100%{opacity:0}}
+    @keyframes hlSweepT{
+     from{transform:translate(627px,366px) rotate(-25deg) translate(-627px,-366px) translate(340px,120px)}
+     to{transform:translate(627px,366px) rotate(-25deg) translate(-627px,-366px) translate(-340px,-120px)}}
+
+    /* ring */
+    .ringWrap{opacity:0;filter:drop-shadow(0 0 12px rgba(214,178,102,.8));animation:hlRingIn .6s ease 7.35s both}
+    @keyframes hlRingIn{to{opacity:1}}
+    .ringBase{fill:none;stroke:#D6B266;stroke-width:5;opacity:.35;stroke-linecap:round}
+    .ringComet{fill:none;stroke-width:15;stroke-dasharray:38 62;stroke-linecap:round}
+    .ringSpin{animation:hlOrbit 1.4s linear 7.35s infinite}
+    @keyframes hlOrbit{from{transform:translate(640px,355px) rotate(0deg) translate(-640px,-355px)}
+     to{transform:translate(640px,355px) rotate(360deg) translate(-640px,-355px)}}
+
+    /* overlay leave + demo extras */
+    .hl-overlay.hl-leaving { animation: hlOut .85s ease both; }
+    @keyframes hlOut { from { opacity: 1 } to { opacity: 0; visibility: hidden } }
+
+    /* reduced motion: static final composition */
+    @media (prefers-reduced-motion: reduce) {
+      .L-runner, .L-runner2, .L-completer, .L-tint, .sweepG, .dust, .L-glow { display: none; }
+      .L-white path { animation: hlFillIn .3s ease .1s both; }
+      .L-white { animation: none; }
+      .birdSettle { animation: none; }
+      .birdShrink { animation: none;
+        transform: translate(568px,346px) scale(.705) translate(-568px,-346px); }
+      .ringWrap { animation: hlRingIn .3s ease .3s both; }
+      .ringSpin { animation-duration: 4s; }
     }
-    .loader.done {
-      transform: translateY(-100%);
-      border-radius: 0 0 50% 50% / 0 0 8vh 8vh;
-    }
-    .loader-bird {
-      width: clamp(110px, 16vw, 160px);
-      height: auto;
-      overflow: visible;
-    }
-    .loader-bird path.wing {
-      fill: none;
-      stroke: var(--gold);
-      stroke-width: 4.5;
-      stroke-linecap: round;
-      stroke-dasharray: 1;
-      stroke-dashoffset: 1;
-      animation: wingDraw 1.15s var(--ease-out) forwards;
-    }
-    .loader-bird path.wing.w2 { animation-delay: 0.14s; opacity: 0.78; }
-    .loader-bird path.wing.w3 { animation-delay: 0.28s; opacity: 0.55; }
-    .loader-bird .bird-body {
-      opacity: 0;
-      animation: birdIn 0.6s ease 0.85s forwards;
-    }
-    @keyframes wingDraw { to { stroke-dashoffset: 0; } }
-    @keyframes birdIn { to { opacity: 1; } }
-    .loader.fly .loader-bird {
-      animation: flyOut 0.9s cubic-bezier(0.5, 0, 0.9, 0.4) forwards;
-    }
-    @keyframes flyOut {
-      to { transform: translate(38vw, -46vh) scale(0.5) rotate(-10deg); opacity: 0; }
-    }
-    .loader-logo {
-      width: clamp(200px, 32vw, 320px);
-      height: auto;
-      opacity: 0;
-      transform: translateY(18px);
-      animation: loaderUp 1s var(--ease-out) 0.4s forwards;
-    }
-    @keyframes loaderUp { to { opacity: 1; transform: translateY(0); } }
-    .loader-tag {
-      font-size: 0.6rem;
-      font-weight: 500;
-      letter-spacing: 0.5em;
-      text-indent: 0.5em;
-      text-transform: uppercase;
-      color: var(--gold-soft);
-      opacity: 0;
-      animation: loaderFade 0.8s ease 0.9s forwards;
-    }
-    @keyframes loaderFade { to { opacity: 1; } }
-    .loader.fly .loader-logo, .loader.fly .loader-tag {
-      animation: loaderHide 0.5s ease forwards;
-    }
-    @keyframes loaderHide { to { opacity: 0; transform: translateY(-12px); } }
 
     /* ════════════════════════════════════════════════════════════
        CAPSULE NAV
@@ -1694,19 +1735,29 @@
 </head>
 <body>
 
-  <!-- Preloader — bird wing opens, brand appears, bird flies out -->
-  <div class="loader" id="loader" aria-hidden="true">
-    <svg class="loader-bird" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path class="wing w1" pathLength="1" d="M28 96 C 52 88, 74 68, 84 34"/>
-      <path class="wing w2" pathLength="1" d="M44 106 C 68 100, 92 78, 104 44"/>
-      <path class="wing w3" pathLength="1" d="M62 114 C 86 110, 110 88, 124 56"/>
-      <g class="bird-body">
-        <circle cx="86" cy="27" r="6.5" fill="#C39035"/>
-        <path d="M92 25 L 103 22 L 94 31" fill="#A38049"/>
-      </g>
-    </svg>
-    <img class="loader-logo" src="https://honnete.us/wp-content/uploads/2020/03/Honnete-Logo-White@2x.png" alt="Honnête">
-    <div class="loader-tag">Reimagine Possible</div>
+  <!-- Preloader — Honnête loading sequence (semi-transparent, page layout shows through) -->
+  <div class="hl-overlay" id="loader" role="status" aria-label="Cargando">
+    <svg class="hl-stage" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet">
+               <defs>
+                <linearGradient id="hlComet" x1="0" y1="0" x2="1" y2="0">
+                 <stop offset="0" stop-color="#D6B266" stop-opacity="0"/>
+                 <stop offset=".55" stop-color="#D6B266" stop-opacity=".55"/>
+                 <stop offset="1" stop-color="#EED9A0" stop-opacity="1"/>
+                </linearGradient>
+                <clipPath id="birdClip"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)"/></clipPath>
+               </defs>
+               <g class="dust"><circle class="dustp" cx="546" cy="435" r="3.2" style="--dl:0.62s;--d:3.18s"/><circle class="dustp" cx="489" cy="390" r="3.0" style="--dl:0.40s;--d:2.94s"/><circle class="dustp" cx="432" cy="344" r="2.7" style="--dl:0.19s;--d:2.70s"/><circle class="dustp" cx="876" cy="299" r="2.5" style="--dl:1.87s;--d:2.46s"/><circle class="dustp" cx="820" cy="254" r="2.2" style="--dl:1.66s;--d:2.23s"/><circle class="dustp" cx="763" cy="209" r="1.9" style="--dl:1.44s;--d:1.99s"/><circle class="dustp" cx="706" cy="564" r="1.7" style="--dl:1.23s;--d:3.85s"/><circle class="dustp" cx="650" cy="518" r="1.4" style="--dl:1.01s;--d:3.61s"/><circle class="dustp" cx="594" cy="473" r="1.2" style="--dl:0.80s;--d:3.38s"/><circle class="dustp" cx="537" cy="428" r="3.2" style="--dl:0.58s;--d:3.14s"/><circle class="dustp" cx="480" cy="383" r="2.9" style="--dl:0.37s;--d:2.90s"/><circle class="dustp" cx="424" cy="338" r="2.7" style="--dl:0.15s;--d:2.67s"/><circle class="dustp" cx="868" cy="292" r="2.4" style="--dl:1.84s;--d:2.43s"/><circle class="dustp" cx="811" cy="247" r="2.2" style="--dl:1.62s;--d:2.19s"/><circle class="dustp" cx="754" cy="202" r="1.9" style="--dl:1.41s;--d:1.95s"/><circle class="dustp" cx="698" cy="557" r="1.6" style="--dl:1.20s;--d:3.82s"/><circle class="dustp" cx="642" cy="512" r="1.4" style="--dl:0.98s;--d:3.58s"/><circle class="dustp" cx="585" cy="466" r="1.1" style="--dl:0.77s;--d:3.34s"/></g>
+               <g class="ringWrap">
+                <circle class="ringBase" cx="640" cy="355" r="185" pathLength="100"/>
+                <g class="ringSpin"><circle class="ringComet" cx="640" cy="355" r="185" pathLength="100" stroke="url(#hlComet)"/></g>
+               </g>
+               <g class="birdShrink"><g class="birdSettle">
+                <g transform="translate(656.01 409.52) scale(5.3978) rotate(-27) translate(-51.2 -21)">
+                 <g class="L-glow"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g><g class="L-white"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g><g class="L-tint"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g><g class="L-runner"><path class="hl-swirl" d="M48 26 m-34 0 a34 13.5 0 1 0 68 0 a34 13.5 0 1 0 -68 0" pathLength="1" transform="rotate(-9 48 26)"/><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g><g class="L-runner2"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g><g class="L-completer"><path d="M72.01,11.2c-1.62,2.15-2.41,4.43-3,6.99,1.63-1.57,3.28-3.03,5.16-4.26,2.92-1.92,6.38-2.54,9.42-4.16,1.85-.99,3.68-1.98,5.45-3.69-.91-.36-1.53-.6-2.15-.85-1.05-.41-1.85-.23-2.16.96-.35,1.33-1.43,1.67-2.53,1.6-.96-.06-1.37-.97-1.47-1.86-.1-.92-.58-.93-1.26-.69-4.76,2.52-7.44,5.95-7.44,5.95" pathLength="1" style="--i:0;--dur:1.9s;--dir:1;--ph:0.0"/><path d="M65.88,15.61c1.99-4.13,3.22-5.35,6.49-8.47,3.9-3.72,8.43-5.34,13.8-4.41.4.07,1.91.37,2.03-.11.09-.35-.11-.6-.44-.81-2.42-1.63-4.78-2.2-7.87-1.5-3.92.89-7.23,2.37-9.88,5.32-3.14,3.5-4.38,9.75-4.13,9.99" pathLength="1" style="--i:1;--dur:2.4s;--dir:-1;--ph:0.35"/><path d="M102.45,4.31c-3.8-1.82-7.01-1.41-10.45-.29.83.74,1.74.43,2.61.94-2.6.64-4.62,1.93-6.22,4.25,4.84-.98,9.19-2.73,14.06-4.9" pathLength="1" style="--i:2;--dur:1.6s;--dir:1;--ph:0.15"/><path d="M89.73,13.01c-4.33,1.54-8.35,3.61-11.32,7.29,2.69,1.06,5.61,1.56,8.14,3.13-.37.55-.74,1.07-1.12,1.6.53,1.37,5.06,7.82-5.86,12.56,3.31-.73,16.26.68,10.98-12.77-1.69-4.31,2.32-8.98,4.88-13.2-2.14-.09-3.92.76-5.69,1.39" pathLength="1" style="--i:3;--dur:2.1s;--dir:-1;--ph:0.05"/><path d="M75.57,3.83s-6.57-.67-9.76-.99c1.27,2.54,4.34,2.47,4.34,2.47,0,0-4.97.71-8.47.07-3.5-.63,4.45,3.5,4.45,3.5l-.22,5.96,2.44-4.34c1.35-2.01,3.05-3.75,5.03-5.13l2.19-1.54Z" pathLength="1" style="--i:4;--dur:1.7s;--dir:1;--ph:0.45"/><path d="M65.3,38.13c-6.87,1.41-13.76,2.22-20.78,1.35,2.99-.55,6.03-.91,8.95-1.72,2.91-.8,5.71-2.06,8.47-3.45-9.82,1.6-19.54,3.97-29.89,1.23,3.23-.23,6.08-.27,8.86-.69,2.81-.42,5.61-1.09,8.32-1.92,2.76-.85,5.42-2.04,8.04-3.31-3.32.79-6.61,1.76-9.97,2.31-3.43.56-6.92.97-10.38.98-3.41,0-6.84-.42-10.22-.93-3.46-.52-6.72-1.8-9.75-3.64,11.96,3.7,23.45,1.39,34.84-2.34-.01-.14-.02-.27-.04-.41-2.63.36-5.25.79-7.88,1.07-8.58.9-17.09.57-25.41-1.93-7.5-2.26-13.44-6.54-17.13-13.6-.6-1.15-1.05-2.39-1.35-3.74.18.17.38.31.52.5,6.87,8.8,16.19,12.5,27.05,13.04,6.02.3,11.88-.89,17.76-1.88,5.48-.92,10.99-1.61,16.54-.77,1.74.26,3.48.86,5.1,1.58,1.62.72,2.35,2.22,2.37,4,.1,6.63,2.28,11.7,8.63,13.22.1.02.2.06.29.11.04.02.05.09.16.3-7.69,4.91-16.09,4.73-25.17,4.25,4.2-.61,8.43-1.09,12.07-3.61" pathLength="1" style="--i:5;--dur:2.6s;--dir:-1;--ph:0.0"/></g>
+                </g>
+                <g clip-path="url(#birdClip)"><g class="sweepG"><rect class="sweepBand" x="580" y="16" width="95" height="700" fill="#E8CE8B"/></g></g>
+               </g></g>
+              </svg>
   </div>
 
   <div class="grain" aria-hidden="true"></div>
@@ -2334,18 +2385,22 @@
     (() => {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      /* ── Preloader: wing draws, bird flies out ── */
+      /* ── Preloader: Honnête loading sequence (dismiss when loaded) ── */
       const loader = document.getElementById('loader');
-      const finishLoad = () => {
-        loader.classList.add('fly');
-        setTimeout(() => {
-          loader.classList.add('done');
-          document.body.classList.add('ready');
-          setTimeout(() => loader.remove(), 1100);
-        }, reduced ? 0 : 550);
+      const MIN_MS = reduced ? 900 : 3800;   // minimum visible time so the intro is seen
+      const CAP_MS = reduced ? 1600 : 9000;   // safety cap so heavy assets never hang it
+      const _t0 = performance.now();
+      let _dismissed = false;
+      const dismiss = () => {
+        if (_dismissed || !loader) return; _dismissed = true;
+        document.body.classList.add('ready');
+        loader.classList.add('hl-leaving');
+        setTimeout(() => loader.remove(), 900);
       };
-      if (reduced) { finishLoad(); }
-      else { setTimeout(finishLoad, 1700); }
+      const dismissAfterMin = () => setTimeout(dismiss, Math.max(0, MIN_MS - (performance.now() - _t0)));
+      if (document.readyState === 'complete') dismissAfterMin();
+      else window.addEventListener('load', dismissAfterMin);
+      setTimeout(dismiss, CAP_MS);
 
       /* ── Nav scroll state ── */
       const nav = document.getElementById('nav');
