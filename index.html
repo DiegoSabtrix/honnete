@@ -103,7 +103,7 @@
     .loader, .hl-overlay { /* Honnête loading sequence */ }
     .hl-overlay{position:fixed;inset:0;z-index:9999;background:rgba(7,16,33,.66);-webkit-backdrop-filter:blur(6px) saturate(1.05);backdrop-filter:blur(6px) saturate(1.05);animation:hlIn .5s ease both}
     @keyframes hlIn{from{opacity:0}to{opacity:1}}
-    .hl-stage{position:absolute;inset:0;width:100%;height:100%}
+    .hl-stage{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40%;height:40%}
 
     /* dust */
     .dustp{fill:#D6B266;opacity:0;animation:hlDust var(--d) ease-in-out var(--dl) 2 both}
@@ -2387,8 +2387,8 @@
 
       /* ── Preloader: Honnête loading sequence (dismiss when loaded) ── */
       const loader = document.getElementById('loader');
-      const MIN_MS = reduced ? 900 : 3800;   // minimum visible time so the intro is seen
-      const CAP_MS = reduced ? 1600 : 9000;   // safety cap so heavy assets never hang it
+      const MIN_MS = reduced ? 900 : 8500;   // muestra la secuencia completa (incluye el anillo orbital ~7.4s)
+      const CAP_MS = reduced ? 1600 : 12000;  // tope de seguridad para que nunca se cuelgue
       const _t0 = performance.now();
       let _dismissed = false;
       const dismiss = () => {
