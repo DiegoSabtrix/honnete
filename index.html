@@ -1490,6 +1490,58 @@
       color: var(--ink-soft);
       line-height: 1.4;
     }
+    .review-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    /* ===== Testimonials carousel ===== */
+    .reviews-carousel { position: relative; max-width: 880px; margin-inline: auto; }
+    .rev-viewport { overflow: hidden; border-radius: var(--r-lg); touch-action: pan-y; cursor: grab; }
+    .rev-viewport:active { cursor: grabbing; }
+    .rev-track { display: flex; will-change: transform; transition: transform 0.6s var(--ease-out); }
+    .rev-track.dragging { transition: none; }
+    .reviews-carousel .review {
+      flex: 0 0 100%;
+      min-width: 0;
+      margin: 0;
+      padding: clamp(30px, 4vw, 52px);
+    }
+    .reviews-carousel .review:hover { transform: none; box-shadow: none; border-color: var(--line); }
+    .reviews-carousel .review-text { font-size: 1.02rem; line-height: 1.85; }
+    .reviews-carousel .review-avatar { width: 54px; height: 54px; }
+
+    .rev-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 34px -14px rgba(18,42,78,0.28);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--navy);
+      transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s var(--ease-out);
+    }
+    .rev-arrow:hover { background: var(--navy); color: var(--pearl); border-color: var(--navy); }
+    .rev-arrow:active { transform: translateY(-50%) scale(0.92); }
+    .rev-arrow svg { width: 20px; height: 20px; }
+    .rev-prev { left: -18px; }
+    .rev-next { right: -18px; }
+    @media (max-width: 940px) { .rev-prev { left: 6px; } .rev-next { right: 6px; } }
+
+    .rev-dots { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+    .rev-dots button {
+      width: 9px; height: 9px;
+      border-radius: 99px;
+      background: rgba(18,42,78,0.22);
+      padding: 0;
+      transition: width 0.45s var(--ease-out), background 0.35s;
+    }
+    .rev-dots button.on { width: 28px; background: var(--gold); }
 
     /* ════════════════════════════════════════════════════════════
        CAPABILITY STATEMENT MODAL — email gate
@@ -1701,7 +1753,7 @@
       .stat:last-child { grid-column: 1 / -1; }
       .flip.w7, .flip.w6, .flip.w5 { grid-column: span 12; }
       .contact-grid { grid-template-columns: 1fr; }
-      .reviews-grid { grid-template-columns: 1fr; max-width: 560px; margin-inline: auto; }
+      .reviews-carousel { max-width: 560px; }
       .footer-top { grid-template-columns: 1fr 1fr; }
     }
 
@@ -2176,9 +2228,17 @@
           <p class="kicker center rv">Client Testimonials</p>
           <h2 class="reviews-title rv rv-d1" id="reviewsTitle">Trusted to make the<br><em>impossible, possible.</em></h2>
         </div>
-        <div class="reviews-grid">
+        <div class="reviews-carousel rv rv-d1" data-carousel>
+          <button class="rev-arrow rev-prev" type="button" aria-label="Testimonio anterior">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <button class="rev-arrow rev-next" type="button" aria-label="Siguiente testimonio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+          <div class="rev-viewport">
+          <div class="rev-track">
 
-          <figure class="review rv">
+          <figure class="review">
             <div class="review-quotemark" aria-hidden="true">&ldquo;</div>
             <div class="review-stars" aria-label="5 out of 5 stars">
               <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 15l-5.3 2.6 1-5.8L1.5 7.7l5.9-.9z"/></svg>
@@ -2194,7 +2254,7 @@
             </figcaption>
           </figure>
 
-          <figure class="review rv rv-d1">
+          <figure class="review">
             <div class="review-quotemark" aria-hidden="true">&ldquo;</div>
             <div class="review-stars" aria-label="5 out of 5 stars">
               <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 15l-5.3 2.6 1-5.8L1.5 7.7l5.9-.9z"/></svg>
@@ -2210,7 +2270,7 @@
             </figcaption>
           </figure>
 
-          <figure class="review rv rv-d2">
+          <figure class="review">
             <div class="review-quotemark" aria-hidden="true">&ldquo;</div>
             <div class="review-stars" aria-label="5 out of 5 stars">
               <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 15l-5.3 2.6 1-5.8L1.5 7.7l5.9-.9z"/></svg>
@@ -2226,6 +2286,9 @@
             </figcaption>
           </figure>
 
+          </div>
+          </div>
+          <div class="rev-dots" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -2504,6 +2567,64 @@
         });
       }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
       document.querySelectorAll('.rv, [data-clip]').forEach(el => io.observe(el));
+
+      /* ── Testimonials carousel ── */
+      const caro = document.querySelector('[data-carousel]');
+      if (caro) {
+        const track = caro.querySelector('.rev-track');
+        const vp = caro.querySelector('.rev-viewport');
+        const slides = [...track.children];
+        const dotsWrap = caro.querySelector('.rev-dots');
+        let idx = 0, timer = null, x0 = null, dx = 0;
+
+        slides.forEach((_, i) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.setAttribute('aria-label', 'Ir al testimonio ' + (i + 1));
+          b.addEventListener('click', () => go(i));
+          dotsWrap.appendChild(b);
+        });
+        const dots = [...dotsWrap.children];
+
+        const render = () => {
+          track.style.transform = `translateX(${-idx * 100}%)`;
+          dots.forEach((d, j) => d.classList.toggle('on', j === idx));
+        };
+        const go = (i) => { idx = (i + slides.length) % slides.length; render(); restart(); };
+        const next = () => go(idx + 1);
+        const prev = () => go(idx - 1);
+
+        caro.querySelector('.rev-next').addEventListener('click', next);
+        caro.querySelector('.rev-prev').addEventListener('click', prev);
+
+        const start = () => { if (!reduced && slides.length > 1) timer = setInterval(next, 5500); };
+        const stop = () => { clearInterval(timer); timer = null; };
+        const restart = () => { stop(); start(); };
+        caro.addEventListener('mouseenter', stop);
+        caro.addEventListener('mouseleave', start);
+
+        vp.addEventListener('pointerdown', e => {
+          x0 = e.clientX; dx = 0; track.classList.add('dragging'); stop();
+          vp.setPointerCapture(e.pointerId);
+        });
+        vp.addEventListener('pointermove', e => {
+          if (x0 === null) return;
+          dx = e.clientX - x0;
+          track.style.transform = `translateX(calc(${-idx * 100}% + ${dx}px))`;
+        });
+        const endDrag = () => {
+          if (x0 === null) return;
+          track.classList.remove('dragging');
+          if (Math.abs(dx) > vp.clientWidth * 0.15) { dx < 0 ? next() : prev(); }
+          else { render(); restart(); }
+          x0 = null; dx = 0;
+        };
+        vp.addEventListener('pointerup', endDrag);
+        vp.addEventListener('pointercancel', endDrag);
+
+        render();
+        start();
+      }
 
       /* ── Word-by-word quote reveal ── */
       const quote = document.querySelector('[data-words]');
