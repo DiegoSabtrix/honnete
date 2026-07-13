@@ -1497,20 +1497,21 @@
     }
 
     /* ===== Testimonials carousel ===== */
-    .reviews-carousel { position: relative; max-width: 880px; margin-inline: auto; }
-    .rev-viewport { overflow: hidden; border-radius: var(--r-lg); touch-action: pan-y; cursor: grab; }
+    .reviews-carousel { position: relative; max-width: 1180px; margin-inline: auto; --per: 3; --rev-gap: clamp(16px, 2vw, 26px); }
+    .rev-viewport { overflow: hidden; padding: 12px 2px 26px; touch-action: pan-y; cursor: grab; }
     .rev-viewport:active { cursor: grabbing; }
-    .rev-track { display: flex; will-change: transform; transition: transform 0.6s var(--ease-out); }
-    .rev-track.dragging { transition: none; }
+    .rev-track { display: flex; gap: var(--rev-gap); will-change: transform; transition: transform 0.6s var(--ease-out); }
     .reviews-carousel .review {
-      flex: 0 0 100%;
+      flex: 0 0 calc((100% - (var(--per) - 1) * var(--rev-gap)) / var(--per));
       min-width: 0;
       margin: 0;
-      padding: clamp(30px, 4vw, 52px);
+      padding: clamp(24px, 2.2vw, 34px);
+      box-shadow: 0 20px 44px -32px rgba(18,42,78,0.30);
     }
-    .reviews-carousel .review:hover { transform: none; box-shadow: none; border-color: var(--line); }
-    .reviews-carousel .review-text { font-size: 1.02rem; line-height: 1.85; }
-    .reviews-carousel .review-avatar { width: 54px; height: 54px; }
+    .reviews-carousel .review:hover { transform: none; box-shadow: 0 26px 52px -30px rgba(18,42,78,0.34); border-color: var(--line-gold); }
+    .reviews-carousel .review-avatar { width: 48px; height: 48px; }
+    @media (max-width: 1000px) { .reviews-carousel { --per: 2; max-width: 760px; } }
+    @media (max-width: 620px)  { .reviews-carousel { --per: 1; max-width: 460px; } }
 
     .rev-arrow {
       position: absolute;
@@ -1753,7 +1754,6 @@
       .stat:last-child { grid-column: 1 / -1; }
       .flip.w7, .flip.w6, .flip.w5 { grid-column: span 12; }
       .contact-grid { grid-template-columns: 1fr; }
-      .reviews-carousel { max-width: 560px; }
       .footer-top { grid-template-columns: 1fr 1fr; }
     }
 
@@ -2222,7 +2222,7 @@
     </section>
 
     <!-- ═══════════ REVIEWS ═══════════ -->
-    <section class="reviews" aria-labelledby="reviewsTitle">
+    <section class="reviews" id="reviews" aria-labelledby="reviewsTitle">
       <div class="wrap">
         <div class="reviews-head">
           <p class="kicker center rv">Client Testimonials</p>
@@ -2288,7 +2288,7 @@
 
           </div>
           </div>
-          <div class="rev-dots" aria-hidden="true"></div>
+          <div class="rev-dots"></div>
         </div>
       </div>
     </section>
@@ -2568,61 +2568,106 @@
       }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
       document.querySelectorAll('.rv, [data-clip]').forEach(el => io.observe(el));
 
-      /* ── Testimonials carousel ── */
+      /* ── Testimonials carousel (multi-card, infinite loop) ── */
       const caro = document.querySelector('[data-carousel]');
       if (caro) {
         const track = caro.querySelector('.rev-track');
         const vp = caro.querySelector('.rev-viewport');
-        const slides = [...track.children];
         const dotsWrap = caro.querySelector('.rev-dots');
-        let idx = 0, timer = null, x0 = null, dx = 0;
+        const originals = [...track.children];
+        const N = originals.length;
+        let per = 1, pos = 0, step = 0, timer = null, x0 = null, dx = 0;
 
-        slides.forEach((_, i) => {
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.setAttribute('aria-label', 'Ir al testimonio ' + (i + 1));
-          b.addEventListener('click', () => go(i));
-          dotsWrap.appendChild(b);
-        });
-        const dots = [...dotsWrap.children];
+        const getPer = () =>
+          Math.max(1, Math.min(N, parseInt(getComputedStyle(caro).getPropertyValue('--per'), 10) || 1));
 
-        const render = () => {
-          track.style.transform = `translateX(${-idx * 100}%)`;
-          dots.forEach((d, j) => d.classList.toggle('on', j === idx));
+        const stepPx = () => {
+          const k = track.children;
+          return k.length > 1 ? k[1].offsetLeft - k[0].offsetLeft
+                              : k[0].getBoundingClientRect().width;
         };
-        const go = (i) => { idx = (i + slides.length) % slides.length; render(); restart(); };
-        const next = () => go(idx + 1);
-        const prev = () => go(idx - 1);
+
+        const place = (animate) => {
+          step = stepPx();
+          track.style.transition = animate ? '' : 'none';
+          track.style.transform = `translateX(${-pos * step}px)`;
+          if (!animate) { void track.offsetWidth; track.style.transition = ''; }
+          updateDots();
+        };
+
+        const buildDots = () => {
+          dotsWrap.innerHTML = '';
+          for (let i = 0; i < N; i++) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.setAttribute('aria-label', 'Ir al testimonio ' + (i + 1));
+            b.addEventListener('click', () => go(per + i));
+            dotsWrap.appendChild(b);
+          }
+        };
+        const updateDots = () => {
+          const real = ((pos - per) % N + N) % N;
+          [...dotsWrap.children].forEach((d, i) => d.classList.toggle('on', i === real));
+        };
+
+        const build = () => {
+          per = getPer();
+          [...track.querySelectorAll('.rev-clone')].forEach(n => n.remove());
+          for (let i = 0; i < per; i++) {
+            const head = originals[N - 1 - i].cloneNode(true);
+            head.classList.add('rev-clone'); head.setAttribute('aria-hidden', 'true');
+            track.insertBefore(head, track.firstChild);
+            const tail = originals[i].cloneNode(true);
+            tail.classList.add('rev-clone'); tail.setAttribute('aria-hidden', 'true');
+            track.appendChild(tail);
+          }
+          pos = per;
+          buildDots();
+          place(false);
+        };
+
+        const go = (p) => { pos = p; place(true); restart(); };
+        const next = () => go(pos + 1);
+        const prev = () => go(pos - 1);
+
+        track.addEventListener('transitionend', e => {
+          if (e.propertyName !== 'transform') return;
+          if (pos >= N + per) { pos -= N; place(false); }
+          else if (pos < per) { pos += N; place(false); }
+        });
 
         caro.querySelector('.rev-next').addEventListener('click', next);
         caro.querySelector('.rev-prev').addEventListener('click', prev);
 
-        const start = () => { if (!reduced && slides.length > 1) timer = setInterval(next, 5500); };
+        const start = () => { if (!reduced) timer = setInterval(next, 5000); };
         const stop = () => { clearInterval(timer); timer = null; };
         const restart = () => { stop(); start(); };
         caro.addEventListener('mouseenter', stop);
         caro.addEventListener('mouseleave', start);
 
         vp.addEventListener('pointerdown', e => {
-          x0 = e.clientX; dx = 0; track.classList.add('dragging'); stop();
+          x0 = e.clientX; dx = 0; track.style.transition = 'none'; stop();
           vp.setPointerCapture(e.pointerId);
         });
         vp.addEventListener('pointermove', e => {
           if (x0 === null) return;
           dx = e.clientX - x0;
-          track.style.transform = `translateX(calc(${-idx * 100}% + ${dx}px))`;
+          track.style.transform = `translateX(${-pos * step + dx}px)`;
         });
         const endDrag = () => {
           if (x0 === null) return;
-          track.classList.remove('dragging');
-          if (Math.abs(dx) > vp.clientWidth * 0.15) { dx < 0 ? next() : prev(); }
-          else { render(); restart(); }
+          track.style.transition = '';
+          if (Math.abs(dx) > step * 0.2) { dx < 0 ? next() : prev(); }
+          else { place(true); restart(); }
           x0 = null; dx = 0;
         };
         vp.addEventListener('pointerup', endDrag);
         vp.addEventListener('pointercancel', endDrag);
 
-        render();
+        let rt;
+        window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 200); });
+
+        build();
         start();
       }
 
